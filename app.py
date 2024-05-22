@@ -107,6 +107,8 @@ elif choice == 'Add User':
         os.makedirs(userimagefolder, exist_ok=True)
         i, j = 0, 0
         cap = cv2.VideoCapture(0)
+        
+        stframe = st.empty()
         while i < nimgs:
             ret, frame = cap.read()
             if ret:
@@ -118,11 +120,12 @@ elif choice == 'Add User':
                         cv2.imwrite(userimagefolder + '/' + name, frame[y:y + h, x:x + w])
                         i += 1
                     j += 1
-                st.image(frame, channels="BGR")
+                stframe.image(frame, channels="BGR")
+            else:
+                st.error('Failed to capture image from camera')
             if cv2.waitKey(1) == 27:
                 break
         cap.release()
-        cv2.destroyAllWindows()
         train_model()
         st.success('User added and model trained!')
 
@@ -150,6 +153,7 @@ elif choice == 'Start Attendance':
         st.warning('There is no trained model in the static folder. Please add a new face to continue.')
     else:
         cap = cv2.VideoCapture(0)
+        stframe = st.empty()
         while True:
             ret, frame = cap.read()
             if ret:
@@ -160,10 +164,10 @@ elif choice == 'Start Attendance':
                     identified_person = identify_face(face.reshape(1, -1))[0]
                     add_attendance(identified_person)
                     cv2.putText(frame, f'{identified_person}', (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                st.image(frame, channels="BGR")
+                stframe.image(frame, channels="BGR")
+            else:
+                st.error('Failed to capture image from camera')
             if cv2.waitKey(1) == 27:
                 break
         cap.release()
-        cv2.destroyAllWindows()
         st.success('Attendance updated!')
-
